@@ -3,9 +3,9 @@
 # Exit on any error
 set -e
 
-# Required environment variables:
-# RENDER_API_KEY - Your Render API key
-# RENDER_SERVICE_ID - The ID of the service to scale
+# Debug: Print what we're seeing
+echo "DEBUG: RENDER_SERVICE_ID = $RENDER_SERVICE_ID"
+echo "DEBUG: RENDER_API_KEY exists = $([ -n "$RENDER_API_KEY" ] && echo 'yes' || echo 'no')"
 
 # Check required variables
 if [ -z "$RENDER_API_KEY" ] || [ -z "$RENDER_SERVICE_ID" ]; then
