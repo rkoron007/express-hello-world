@@ -34,7 +34,7 @@ RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
 HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
 BODY=$(echo "$RESPONSE" | sed '$d')
 
-if [ "$HTTP_CODE" -eq 200 ]; then
+if [ "$HTTP_CODE" -eq 200 ] || [ "$HTTP_CODE" -eq 202 ]; then
   echo "Successfully scaled to $INSTANCE_COUNT instances"
   exit 0
 else
