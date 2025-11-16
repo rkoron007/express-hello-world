@@ -4,12 +4,12 @@
 set -e
 
 # Debug: Print what we're seeing
-echo "DEBUG: RENDER_SERVICE_ID = $RENDER_SERVICE_ID"
+echo "DEBUG: TARGET_SERVICE_ID = $TARGET_SERVICE_ID"
 echo "DEBUG: RENDER_API_KEY exists = $([ -n "$RENDER_API_KEY" ] && echo 'yes' || echo 'no')"
 
 # Check required variables
-if [ -z "$RENDER_API_KEY" ] || [ -z "$RENDER_SERVICE_ID" ]; then
-  echo "Error: RENDER_API_KEY and RENDER_SERVICE_ID must be set"
+if [ -z "$RENDER_API_KEY" ] || [ -z "$TARGET_SERVICE_ID" ]; then
+  echo "Error: RENDER_API_KEY and TARGET_SERVICE_ID must be set"
   exit 1
 fi
 
@@ -23,10 +23,10 @@ if [ -z "$INSTANCE_COUNT" ]; then
 fi
 
 # Call the Render API to scale the service
-echo "Scaling service $RENDER_SERVICE_ID to $INSTANCE_COUNT instances..."
+echo "Scaling service $TARGET_SERVICE_ID to $INSTANCE_COUNT instances..."
 
 RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
-  "https://api.render.com/v1/services/$RENDER_SERVICE_ID/scale" \
+  "https://api.render.com/v1/services/$TARGET_SERVICE_ID/scale" \
   -H "Authorization: Bearer $RENDER_API_KEY" \
   -H "Content-Type: application/json" \
   -d "{\"numInstances\": $INSTANCE_COUNT}")
