@@ -1,6 +1,17 @@
 const express = require("express");
+const ld = require("launchdarkly-node-server-sdk");
+
 const app = express();
 const port = process.env.PORT || 3001;
+
+// Initialize LaunchDarkly
+const ldClient = ld.init("697bfb3ce33d1a0b023a83f2");
+
+ldClient.waitForInitialization().then(() => {
+  console.log("LaunchDarkly SDK successfully initialized!");
+}).catch((err) => {
+  console.error("LaunchDarkly SDK failed to initialize:", err);
+});
 
 app.get("/", (req, res) => res.type('html').send(html));
 
