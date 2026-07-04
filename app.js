@@ -5,6 +5,7 @@ const port = process.env.PORT || 3001;
 
 app.get("/", (req, res) => res.type('html').send(html));
 app.get("/health", (req, res) => res.json({ status: "ok" }));
+app.get("/version", (req, res) => res.json({ version: "1.1.0" }));
 
 const server = app.listen(port, () => console.log(`Example app listening on port ${port}!`));
 
