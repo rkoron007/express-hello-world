@@ -8,7 +8,7 @@
   "license": "MIT",
   "private": false,
   "scripts": {
-    "start": "node app.js"
+    "start": "node --disable-warning=DEP0169 app.js"
   },
   "dependencies": {
     "express": "^5.0.0"
