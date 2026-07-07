@@ -10,7 +10,7 @@ app.get("/version", (req, res) => res.json({ version: "1.1.0" }));
 const server = app.listen(port, () => console.log(`Example app listening on port ${port}! Wow! Thanks Render!asddasddsadassadasasdaads`));
 
 server.keepAliveTimeout = 120 * 1000;
-server.headersTimeout = 120 * 1000;c
+server.headersTimeout = 120 * 1000;
 
 const html = `
 <!DOCTYPE html>
