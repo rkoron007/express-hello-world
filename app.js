@@ -1,3 +1,8 @@
+process.removeAllListeners("warning");
+process.on("warning", (warning) => {
+  if (warning.code !== "DEP0169") console.warn(warning);
+});
+
 const express = require("express");
 
 const app = express();
