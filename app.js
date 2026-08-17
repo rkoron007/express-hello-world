@@ -7,7 +7,7 @@ app.get("/", (req, res) => res.type('html').send(html));
 app.get("/health", (req, res) => res.json({ status: "ok" }));
 app.get("/version", (req, res) => res.json({ version: "1.1.0" }));
 
-const server = app.listen(port, () => console.log(`Example app listening on port ${port}! Wow! thanks! Amazing! Totes! Holy moly`));
+const server = app.listen(port, () => console.log(`Example app listening on port ${port}! Wow! thanks! Amazing! Totes! Holy moly!`));
 
 server.keepAliveTimeout = 120 * 1000;
 server.headersTimeout = 120 * 1000;
