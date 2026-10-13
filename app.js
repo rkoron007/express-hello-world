@@ -9,31 +9,16 @@ app.get("/health", (req, res) => res.json({ status: "ok" }));
 app.get("/version", (req, res) => res.json({ version: "1.1.0" }));
 app.get("/gcp-check", async (req, res) => {
   const provider = process.env.GCP_WORKLOAD_IDENTITY_PROVIDER;
-  const tokenFile = process.env.GCP_IDENTITY_TOKEN_FILE;
 
-  if (!provider || !tokenFile) {
+  if (!provider) {
     return res.status(503).json({
       ok: false,
-      error: "GCP_WORKLOAD_IDENTITY_PROVIDER and GCP_IDENTITY_TOKEN_FILE must be set"
+      error: "GCP_WORKLOAD_IDENTITY_PROVIDER must be set"
     });
   }
 
   try {
-    const providerResource = provider
-      .replace(/^https:\/\/iam\.googleapis\.com\//, "")
-      .replace(/^\/\/iam\.googleapis\.com\//, "");
-    const credentials = {
-      type: "external_account",
-      audience: `//iam.googleapis.com/${providerResource}`,
-      subject_token_type: "urn:ietf:params:oauth:token-type:jwt",
-      token_url: "https://sts.googleapis.com/v1/token",
-      credential_source: {
-        file: tokenFile,
-        format: { type: "text" }
-      }
-    };
     const auth = new GoogleAuth({
-      credentials,
       scopes: ["https://www.googleapis.com/auth/cloud-platform"]
     });
     const client = await auth.getClient();
