@@ -1,4 +1,5 @@
 const express = require("express");
+const { GoogleAuth } = require("google-auth-library");
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -6,8 +7,57 @@ const port = process.env.PORT || 3001;
 app.get("/", (req, res) => res.type('html').send(html));
 app.get("/health", (req, res) => res.json({ status: "ok" }));
 app.get("/version", (req, res) => res.json({ version: "1.1.0" }));
+app.get("/gcp-check", async (req, res) => {
+  const provider = process.env.GCP_WORKLOAD_IDENTITY_PROVIDER;
+  const tokenFile = process.env.GCP_IDENTITY_TOKEN_FILE;
+  const bucketName = process.env.GCP_BUCKET_NAME;
 
-const server = app.listen(port, () => console.log(`Example app is listening on port ${port}!`));
+  if (!provider || !tokenFile || !bucketName) {
+    return res.status(503).json({
+      ok: false,
+      error: "GCP_WORKLOAD_IDENTITY_PROVIDER, GCP_IDENTITY_TOKEN_FILE, and GCP_BUCKET_NAME must be set"
+    });
+  }
+
+  try {
+    const providerResource = provider
+      .replace(/^https:\/\/iam\.googleapis\.com\//, "")
+      .replace(/^\/\/iam\.googleapis\.com\//, "");
+    const credentials = {
+      type: "external_account",
+      audience: `//iam.googleapis.com/${providerResource}`,
+      subject_token_type: "urn:ietf:params:oauth:token-type:jwt",
+      token_url: "https://sts.googleapis.com/v1/token",
+      credential_source: {
+        file: tokenFile,
+        format: { type: "text" }
+      }
+    };
+    const auth = new GoogleAuth({
+      credentials,
+      scopes: ["https://www.googleapis.com/auth/devstorage.read_only"]
+    });
+    const client = await auth.getClient();
+    const response = await client.request({
+      url: `https://storage.googleapis.com/storage/v1/b/${encodeURIComponent(bucketName)}`,
+      method: "GET"
+    });
+
+    return res.json({
+      ok: true,
+      bucket: response.data.id,
+      location: response.data.location
+    });
+  } catch (error) {
+    console.error("GCP access check failed:", error.message);
+    return res.status(502).json({
+      ok: false,
+      error: "GCP access check failed"
+    });
+  }
+});
+
+const server = app.listen(port, "0.0.0.0", () => console.log(`Example app is listening on port ${port}!`));
 
 server.keepAliveTimeout = 120 * 1000;
 server.headersTimeout = 120 * 1000;

@@ -11,6 +11,7 @@
     "start": "node app.js"
   },
   "dependencies": {
-    "express": "^4.22.2"
+    "express": "^4.22.2",
+    "google-auth-library": "^10.9.1"
   }
 }
