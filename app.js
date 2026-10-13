@@ -10,12 +10,11 @@ app.get("/version", (req, res) => res.json({ version: "1.1.0" }));
 app.get("/gcp-check", async (req, res) => {
   const provider = process.env.GCP_WORKLOAD_IDENTITY_PROVIDER;
   const tokenFile = process.env.GCP_IDENTITY_TOKEN_FILE;
-  const bucketName = process.env.GCP_BUCKET_NAME;
 
-  if (!provider || !tokenFile || !bucketName) {
+  if (!provider || !tokenFile) {
     return res.status(503).json({
       ok: false,
-      error: "GCP_WORKLOAD_IDENTITY_PROVIDER, GCP_IDENTITY_TOKEN_FILE, and GCP_BUCKET_NAME must be set"
+      error: "GCP_WORKLOAD_IDENTITY_PROVIDER and GCP_IDENTITY_TOKEN_FILE must be set"
     });
   }
 
@@ -35,19 +34,16 @@ app.get("/gcp-check", async (req, res) => {
     };
     const auth = new GoogleAuth({
       credentials,
-      scopes: ["https://www.googleapis.com/auth/devstorage.read_only"]
+      scopes: ["https://www.googleapis.com/auth/cloud-platform"]
     });
     const client = await auth.getClient();
-    const response = await client.request({
-      url: `https://storage.googleapis.com/storage/v1/b/${encodeURIComponent(bucketName)}`,
-      method: "GET"
-    });
+    const accessToken = await client.getAccessToken();
 
-    return res.json({
-      ok: true,
-      bucket: response.data.id,
-      location: response.data.location
-    });
+    if (!accessToken.token) {
+      throw new Error("GCP did not return an access token");
+    }
+
+    return res.json({ ok: true, federated: true });
   } catch (error) {
     console.error("GCP access check failed:", error.message);
     return res.status(502).json({
